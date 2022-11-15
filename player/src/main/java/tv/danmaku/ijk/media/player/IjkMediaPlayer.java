@@ -49,6 +49,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -421,11 +422,21 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
      */
     public void setDataSource(String path, Map<String, String> headers)
             throws IOException, IllegalArgumentException, SecurityException, IllegalStateException {
+        if (path.startsWith("http") && path.contains(".mp4")) {
+            if (headers == null) {
+                headers = new HashMap<>();
+            }
+            headers.put("Content-Type", "video/mp4");
+            headers.put("Accept-Ranges", "bytes");
+            headers.put("Status", "206");
+            headers.put("Cache-control", "no-cache");
+        }
+
         if (headers != null && !headers.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 sb.append(entry.getKey());
-                sb.append(":");
+                sb.append(": ");
                 String value = entry.getValue();
                 if (!TextUtils.isEmpty(value))
                     sb.append(entry.getValue());
